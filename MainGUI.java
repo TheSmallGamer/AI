@@ -5,10 +5,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
@@ -16,14 +14,13 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class CableBilling extends Application implements EventHandler<ActionEvent>{
-	
-	private Text nameText = new Text("Enter your name: ");
-	private TextField nameField = new TextField("");
+	public static int terminate = 0;
+	public static String feeling = "";
 	private Text phraseText = new Text("Enter your text: ");
 	private static TextField phraseField = new TextField("");
-	private Button calc = new Button("Calculate Monthly Bill");
+	private Button calc = new Button("Submit Response");
 	private Button clear = new Button("Clear");
-	private TextArea area = new TextArea("");
+	private static TextArea area = new TextArea("");
 	private String windowTitle = "AI - GUI Edition - Now 20% more GUI!";
 
 	public void start(Stage primaryStage) throws Exception {
@@ -33,14 +30,16 @@ public class CableBilling extends Application implements EventHandler<ActionEven
 		grid.setVgap(10);
 		calc.setOnAction(this);
 		clear.setOnAction(this);
-		grid.add(nameText, 0, 0);
-		grid.add(nameField, 1, 0);
 		grid.add(phraseText, 0, 1);
 		grid.add(phraseField, 1, 1);
-		grid.add(calc, 0, 6);
-		grid.add(area, 0, 5,2,1);
-		grid.add(clear, 1, 6);
+		grid.add(calc, 0, 3);
+		grid.add(area, 0, 0,2,1);
+		grid.add(clear, 1, 3);
 		area.setEditable(false);
+		area.appendText("Thank you for trying AI!\n");
+		area.appendText("Use one word command. Type help for help!\n");
+		area.appendText("----------------------------------------------\n");
+		area.appendText("\n");
 		primaryStage.setScene(new Scene(grid, 480,275));
 		primaryStage.show();
 		grid.setOnKeyPressed(new EventHandler<KeyEvent>(){
@@ -49,12 +48,19 @@ public class CableBilling extends Application implements EventHandler<ActionEven
 			{
 				if (key.getCode().equals(KeyCode.ENTER))
 				{
-					area.appendText(nameField.getText());
-					nameField.setEditable(false);
+					area.clear();
+					String ans;
+					ans = process();
+					area.appendText("Thank you for trying AI!\n");
+					area.appendText("Use one word command. Type help for help!\n");
+					area.appendText("--------------------------------------------------\n");
+					area.appendText("User Response: " + phraseField.getText() + "\n");
+					area.appendText("---------------------------------------------------\n");
+					area.appendText("\n");
+					area.appendText(ans +"\n");
 				}
 				else if (key.getCode().equals(KeyCode.C))
 				{
-					nameField.setEditable(true);
 					area.setText("");
 				}
 			}
@@ -64,21 +70,18 @@ public class CableBilling extends Application implements EventHandler<ActionEven
 	public void handle(ActionEvent event){
 		if(event.getSource() == calc)
 		{
-			area.appendText(nameField.getText());
-			nameField.setEditable(false);
+			area.clear();
+			String ans;
+			ans = process();
 			area.appendText("Thank you for trying AI!\n");
 			area.appendText("Use one word command. Type help for help!\n");
-			area.appendText("If you want to chat, type 'convo'\n");
-			while (true) {
-				String ans;
-				ans = AI.process();
-				area.appendText(ans +"\n");
-			}
+			area.appendText("----------------------------------------------\n");
+			area.appendText("\n");
+			area.appendText(ans +"\n");
 		}
 		
 		if(event.getSource() == clear)
 		{
-			nameField.setEditable(true);
 			area.setText("");
 		}
 	}
@@ -88,16 +91,9 @@ public class CableBilling extends Application implements EventHandler<ActionEven
 	}
 
 	public static String process() {
-		String feeling = "";
-		@SuppressWarnings("resource")
-		String current;
-		System.out.print("> ");
-		current = phraseField.getText();
-		current = current.toLowerCase();
-			while (true) {
-				String current2;
-				System.out.print(">> ");
-				current2 = scan.nextLine();
+		
+			String current2;
+				current2 = phraseField.getText();
 				current2 = current2.toLowerCase();
 				if (current2.compareTo("") != 0) {
 					if (search("hello", current2) == true || search("hi", current2) == true ) {
@@ -136,12 +132,29 @@ public class CableBilling extends Application implements EventHandler<ActionEven
 								}	
 							}
 							
-					} else {
+					}else if((search("kill", current2) == true && search("yourself", current2) == true && feeling == "depressed..."))
+					{
+						try {
+							area.appendText("Thank you for trying AI!\n");
+							area.appendText("Use one word command. Type help for help!\n");
+							area.appendText("--------------------------------------------------\n");
+							area.appendText("User Response: " + current2 + "\n");
+							area.appendText("---------------------------------------------------\n");
+							area.appendText("\n");
+							area.appendText("Okay... Time to pull the plug I guess.... had to happen eventually.");
+							Thread.sleep(2000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						System.exit(0);
+					}
+					else
+					{
 						return("I don't think I understood... perhaps you could rephrase your question?");
 					}
 				} 
+				return "boi";
 			}
-	}
 	public static Boolean search(String keyword, String phrase) {
 			if (phrase.indexOf(keyword) >= 0) {
 				return true;
